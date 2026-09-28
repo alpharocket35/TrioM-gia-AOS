@@ -44,3 +44,10 @@ pour des jeux HTML5 ajoutés au projet.
 - AOS clair : bleu ciel + blanc
 - AOS sombre : jaune + noir
 - TrioGaming : orange + noir
+
+
+### 🔊 Audio
+AOS intègre des effets sonores générés directement dans le navigateur (clics, ouverture/fermeture, succès et erreurs), sans fichiers audio externes.
+
+### 👤 Utilisateur
+Utilisateur par défaut : **Admin**.

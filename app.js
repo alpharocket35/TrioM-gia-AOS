@@ -4,11 +4,11 @@ const APPS = {
  calculator:{title:"Calculatrice",icon:"🧮",open:calculatorApp},
  terminal:{title:"Terminal",icon:"⌨️",open:terminalApp},
  browser:{title:"Web",icon:"🌐",open:browserApp},
- gaming:{title:"TrioGaming",icon:"🎮",open:gamingApp},
+ gaming:{title:"TrioGaming",icon:"🎮",open:gamingApp},snake:{title:"Snake",icon:"🐍",open:snakeApp},game2048:{title:"2048",icon:"🔢",open:game2048App},memory:{title:"Memory",icon:"🧠",open:memoryApp},
  settings:{title:"Réglages",icon:"⚙️",open:settingsApp}
 };
 
-const state={windows:new Map(),z:100,theme:localStorage.getItem("aos_theme")||"light",accent:localStorage.getItem("aos_accent")||"sky",notes:localStorage.getItem("alpha_notes")||""};
+const state={windows:new Map(),z:100,theme:localStorage.getItem("aos_theme")||"light",accent:localStorage.getItem("aos_accent")||"sky",notes:localStorage.getItem("aos_notes")||""};
 const desktop=document.querySelector("#desktop"), windows=document.querySelector("#windows"), taskButtons=document.querySelector("#taskButtons");
 
 const themes={sky:"#38bdf8",blue:"#60a5fa",cyan:"#22d3ee",white:"#e0f2fe"};
@@ -22,7 +22,7 @@ applyTheme(state.theme);
 
 function qs(s,p=document){return p.querySelector(s)}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function openApp(id){
+function openApp(id){ audio.open();
   const app=APPS[id]; if(!app)return;
   if(state.windows.has(id)){focusWindow(id);return}
   const win=document.createElement("section"); win.className="window focused"; win.dataset.app=id;
@@ -34,7 +34,7 @@ function openApp(id){
   setupWindow(win,id);
 }
 function focusWindow(id){const item=state.windows.get(id);if(!item)return;state.z++;item.el.style.zIndex=state.z;document.querySelectorAll(".window").forEach(x=>x.classList.remove("focused"));item.el.classList.add("focused");renderTasks()}
-function closeWindow(id){const item=state.windows.get(id);if(!item)return;item.el.remove();state.windows.delete(id);renderTasks()}
+function closeWindow(id){ audio.close();const item=state.windows.get(id);if(!item)return;item.el.remove();state.windows.delete(id);renderTasks()}
 function minimizeWindow(id){const item=state.windows.get(id);if(!item)return;item.min=true;item.el.style.display="none";renderTasks()}
 function maximizeWindow(id){
  const item=state.windows.get(id); if(!item)return;
@@ -81,7 +81,7 @@ function filesApp(body){
 function notesApp(body){
  body.innerHTML=`<div class="notes-app"><textarea placeholder="Écris tes notes ici..."></textarea><div class="notes-bottom">Sauvegarde automatique dans ce navigateur • <span id="saved">Enregistré</span></div></div>`;
  const ta=qs("textarea",body);ta.value=state.notes;
- ta.addEventListener("input",()=>{state.notes=ta.value;localStorage.setItem("alpha_notes",state.notes);qs("#saved",body).textContent="Enregistré à "+new Date().toLocaleTimeString("fr-FR")});
+ ta.addEventListener("input",()=>{state.notes=ta.value;localStorage.setItem("aos_notes",state.notes);qs("#saved",body).textContent="Enregistré à "+new Date().toLocaleTimeString("fr-FR")});
 }
 
 function calculatorApp(body){
@@ -97,14 +97,14 @@ function calculatorApp(body){
 }
 
 function terminalApp(body){
- body.innerHTML=`<div class="terminal"><div class="terminal-output">AOS de TrioMégia Terminal v1.0<br>Bienvenue. Tape <b>help</b> pour voir les commandes.<br><br></div><div class="terminal-line"><span>alpha@os:~$</span><input autofocus autocomplete="off"></div></div>`;
+ body.innerHTML=`<div class="terminal"><div class="terminal-output">AOS de TrioMégia Terminal v1.0<br>Bienvenue Admin. Tape <b>help</b> pour voir les commandes.<br><br></div><div class="terminal-line"><span>Admin@aos:~$</span><input autofocus autocomplete="off"></div></div>`;
  const out=qs(".terminal-output",body),input=qs("input",body);
- input.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const cmd=input.value.trim();out.innerHTML+=`<span>alpha@os:~$ ${esc(cmd)}</span><br>`;let ans="";
+ input.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const cmd=input.value.trim();out.innerHTML+=`<span>Admin@aos:~$ ${esc(cmd)}</span><br>`;let ans="";
    if(cmd==="help")ans="help  about  clear  date  echo [texte]  apps  neofetch";
    else if(cmd==="about")ans="AOS de TrioMégia — un système d'exploitation simulé dans ton navigateur.";
    else if(cmd==="date")ans=new Date().toString();
    else if(cmd==="apps")ans=Object.entries(APPS).map(([k,v])=>`${v.icon} ${k}`).join("  ");
-   else if(cmd==="neofetch")ans="     α   AlphaOS\\n     Browser-based desktop\\n     Theme: "+state.theme;
+   else if(cmd==="neofetch")ans="     α   AOS de TrioMégia\\n     Browser-based desktop\\n     Theme: "+state.theme;
    else if(cmd==="clear"){out.innerHTML="";input.value="";return}
    else if(cmd.startsWith("echo "))ans=cmd.slice(5);
    else if(cmd)ans=`Commande inconnue : ${cmd}`;
@@ -113,10 +113,10 @@ function terminalApp(body){
 }
 
 function browserApp(body){
- body.innerHTML=`<div class="browser"><div class="browser-bar"><button class="soft-btn" id="home">⌂</button><input value="https://alpharocket.github.io/"><button class="soft-btn" id="go">Aller</button></div><div class="browser-page" id="page"><h1>Alpha Browser</h1><p>Bienvenue dans le navigateur intégré d'AlphaOS.</p><p>Cette application est une simulation locale. Elle n'envoie pas automatiquement tes données à un service externe.</p></div></div>`;
+ body.innerHTML=`<div class="browser"><div class="browser-bar"><button class="soft-btn" id="home">⌂</button><input value="https://trio-megia.github.io/"><button class="soft-btn" id="go">Aller</button></div><div class="browser-page" id="page"><h1>Trio Browser</h1><p>Bienvenue dans le navigateur intégré d'AOS de TrioMégia.</p><p>Cette application est une simulation locale. Elle n'envoie pas automatiquement tes données à un service externe.</p></div></div>`;
  const input=qs("input",body),page=qs("#page",body);
- qs("#go",body).onclick=()=>{page.innerHTML=`<h1>🌐 ${esc(input.value)}</h1><p>Page de démonstration AlphaOS.</p><p>Tu peux remplacer cette application par une vraie interface de navigation si tu ajoutes ton propre backend/proxy.</p>`};
- qs("#home",body).onclick=()=>{input.value="alpha://home";page.innerHTML="<h1>Alpha Browser</h1><p>Accueil AlphaOS.</p>"};
+ qs("#go",body).onclick=()=>{page.innerHTML=`<h1>🌐 ${esc(input.value)}</h1><p>Page de démonstration AOS de TrioMégia.</p><p>Tu peux remplacer cette application par une vraie interface de navigation si tu ajoutes ton propre backend/proxy.</p>`};
+ qs("#home",body).onclick=()=>{input.value="aos://home";page.innerHTML="<h1>Trio Browser</h1><p>Accueil AOS de TrioMégia.</p>"};
 }
 
 
@@ -140,12 +140,23 @@ function gamingApp(body){
 
 function settingsApp(body){
  body.innerHTML=`<div class="settings"><h2>Réglages</h2><div class="setting-row"><div><b>Mode clair / sombre</b><small>Clair : bleu ciel et blanc • Sombre : jaune et noir</small></div><button class="soft-btn" id="modeToggle">${state.theme==="dark"?"☀️ Mode clair":"🌙 Mode sombre"}</button></div>
-<div class="setting-row"><div><b>Accent AOS</b><small>Personnalise le bleu ciel</small></div><div class="theme-buttons">${Object.keys(themes).map(t=>`<button class="theme-btn ${t}" data-accent="${t}" title="${t}"></button>`).join("")}</div></div><div class="setting-row"><div><b>Réinitialiser les notes</b><small>Supprime les notes locales</small></div><button class="soft-btn" id="clearNotes">Effacer</button></div><div class="about"><div style="font-size:55px">α</div><h2>AlphaOS</h2><p>AOS de TrioMégia • GitHub Pages Edition</p><p>Bleu ciel + blanc • Mode sombre jaune + noir</p></div></div>`;
+<div class="setting-row"><div><b>Accent AOS</b><small>Personnalise le bleu ciel</small></div><div class="theme-buttons">${Object.keys(themes).map(t=>`<button class="theme-btn ${t}" data-accent="${t}" title="${t}"></button>`).join("")}</div></div><div class="setting-row"><div><b>Réinitialiser les notes</b><small>Supprime les notes locales</small></div><button class="soft-btn" id="clearNotes">Effacer</button></div><div class="about"><div style="font-size:55px">TM</div><h2>AOS de TrioMégia</h2><p>AOS de TrioMégia • GitHub Pages Edition</p><p>Bleu ciel + blanc • Mode sombre jaune + noir</p></div></div>`;
  body.querySelectorAll("[data-accent]").forEach(b=>b.onclick=()=>{state.accent=b.dataset.accent;localStorage.setItem("aos_accent",state.accent);if(state.theme!=="dark")applyTheme(state.theme);toast("Accent AOS appliqué")});
  qs("#modeToggle",body).onclick=()=>{applyTheme(state.theme==="dark"?"light":"dark");settingsApp(body);toast("Mode "+(state.theme==="dark"?"sombre":"clair"))};
- qs("#clearNotes",body).onclick=()=>{localStorage.removeItem("alpha_notes");state.notes="";toast("Notes supprimées")};
+ qs("#clearNotes",body).onclick=()=>{localStorage.removeItem("aos_notes");state.notes="";toast("Notes supprimées")};
 }
 
+const audio={ctx:null,enabled:localStorage.getItem("aos_sound")!=="off",ensure(){if(!this.enabled)return null;if(!this.ctx)this.ctx=new (window.AudioContext||window.webkitAudioContext)();if(this.ctx.state==="suspended")this.ctx.resume();return this.ctx},beep(freq=440,dur=.07,type="sine",gain=.035){const c=this.ensure();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(gain,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+dur)},click(){this.beep(520,.05,"triangle",.025)},open(){this.beep(660,.08,"sine",.03);setTimeout(()=>this.beep(880,.08,"sine",.025),55)},close(){this.beep(300,.08,"triangle",.025)},success(){this.beep(660,.08);setTimeout(()=>this.beep(880,.1),70)},error(){this.beep(180,.13,"sawtooth",.02)}};
+function playGame(game){
+ audio.open();
+ if(game==="snake") return openApp("snake");
+ if(game==="2048") return openApp("game2048");
+ if(game==="memory") return openApp("memory");
+ toast("TrioGame Lab arrive bientôt !");
+}
+function snakeApp(body){body.innerHTML=`<div class="mini-game"><h2>🐍 Snake</h2><canvas id="snakeCanvas" width="420" height="320"></canvas><p>Flèches ou ZQSD • Espace pour recommencer</p></div>`;const c=qs("#snakeCanvas",body),x=c.getContext("2d");let dir={x:1,y:0},snake=[{x:10,y:10}],food={x:15,y:8},score=0,run=true;const reset=()=>{snake=[{x:10,y:10}];food={x:15,y:8};dir={x:1,y:0};score=0;run=true};const tick=()=>{if(!run)return;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.y<0||h.x>=21||h.y>=16||snake.some(q=>q.x===h.x&&q.y===h.y)){run=false;audio.error();return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score++;audio.success();do{food={x:Math.floor(Math.random()*21),y:Math.floor(Math.random()*16)}}while(snake.some(q=>q.x===food.x&&q.y===food.y))}else snake.pop();x.clearRect(0,0,c.width,c.height);x.fillStyle="#111";x.fillRect(0,0,c.width,c.height);x.fillStyle="var(--accent,#38bdf8)";snake.forEach(q=>x.fillRect(q.x*20+1,q.y*20+1,18,18));x.fillStyle="#ff7a00";x.fillRect(food.x*20+2,food.y*20+2,16,16);x.fillStyle="#fff";x.fillText("Score: "+score,8,312)};document.onkeydown=e=>{const k=e.key.toLowerCase();if(k==="arrowup"||k==="z")dir={x:0,y:-1};if(k==="arrowdown"||k==="s")dir={x:0,y:1};if(k==="arrowleft"||k==="q")dir={x:-1,y:0};if(k==="arrowright"||k==="d")dir={x:1,y:0};if(k===" "){reset();tick()}};tick();setInterval(tick,110)}
+function game2048App(body){body.innerHTML=`<div class="mini-game"><h2>🔢 2048</h2><div id="g2048" class="board2048"></div><p>Flèches ou ZQSD</p></div>`;let a=Array(16).fill(0);const el=qs("#g2048",body);function draw(){el.innerHTML=a.map(v=>`<div class="tile t${v}">${v||""}</div>`).join("")}function add(){let z=a.map((v,i)=>v?null:i).filter(i=>i!==null);if(z.length)a[z[Math.floor(Math.random()*z.length)]]=Math.random()<.9?2:4}function move(d){let old=a.join();for(let r=0;r<4;r++){let line=d<2?a.slice(r*4,r*4+4):[a[r],a[r+4],a[r+8],a[r+12]];if(d===1||d===3)line.reverse();line=line.filter(Boolean);for(let i=0;i<line.length-1;i++)if(line[i]===line[i+1]){line[i]*=2;line.splice(i+1,1);audio.success()}while(line.length<4)line.push(0);if(d===1||d===3)line.reverse();if(d<2)for(let i=0;i<4;i++)a[r*4+i]=line[i];else for(let i=0;i<4;i++)a[r+4*i]=line[i]}if(old!==a.join()){add();draw()}else audio.error()}a[0]=2;add();add();draw();document.onkeydown=e=>{let k=e.key.toLowerCase();if(["arrowleft","q"].includes(k))move(0);if(["arrowright","d"].includes(k))move(1);if(["arrowup","z"].includes(k))move(2);if(["arrowdown","s"].includes(k))move(3)}}
+function memoryApp(body){const vals=["🍕","🚀","🎮","🐱","🔥","⚡","🎧","🌟"];let deck=[...vals,...vals].sort(()=>Math.random()-.5),open=[];body.innerHTML=`<div class="mini-game"><h2>🧠 Memory</h2><div id="memory" class="memory-grid"></div></div>`;const g=qs("#memory",body);deck.forEach((v,i)=>{const b=document.createElement("button");b.className="memory-card";b.textContent="?";b.onclick=()=>{if(open.length===2||b.dataset.done)return;b.textContent=v;open.push([i,b]);audio.click();if(open.length===2){if(deck[open[0][0]]===deck[open[1][0]]){open.forEach(x=>x[1].dataset.done="1");open=[];audio.success()}else setTimeout(()=>{open.forEach(x=>x[1].textContent="?");open=[]},650)}};g.appendChild(b)})}
 function toast(msg){const d=document.createElement("div");d.textContent=msg;d.style.cssText="position:fixed;z-index:30000;right:20px;bottom:80px;background:#111827ee;color:white;padding:12px 16px;border:1px solid #ffffff22;border-radius:10px;box-shadow:0 10px 30px #0005";document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
 
 document.querySelectorAll(".desktop-icon").forEach(b=>b.onclick=()=>openApp(b.dataset.app));
